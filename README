@@ -1,0 +1,7 @@
+HTTP wrapper for Stanford NER.
+
+http://nlp.stanford.edu/ner/index.shtml
+
+Includes a small dutch training set.
+
+It was initionally developed by the european library and later enhanced for kb research purposes.

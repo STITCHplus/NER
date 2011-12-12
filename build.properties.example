@@ -1,0 +1,16 @@
+jboss.home=C:/Progra~1/jboss-4.2.2.GA
+jboss.server.home=${jboss.home}/server/default
+eclipse.home=C:/Program Files/eclipse3.3.2
+tomcat.root.dir=${jboss.server.home}/deploy/jboss-web.deployer
+
+src.dir=src
+bin.dir=bin
+lib.dir=lib
+dist.dir=dist
+temp.dist.dir=dist_temp
+
+testng.jar=c:/src/TPP/testng-5.7-jdk15.jar
+testng.output.dir=testng_output
+
+
+user=Michel Koppelaar

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="TPTA" default="dist" basedir=".">
+  <description>Build file for TPTA</description>
+
+  <property file="build.properties" />
+  <property file="version.properties"/>
+  
+  <!-- ================================ -->
+  <!--                                  -->
+  <!--              INIT                -->
+  <!--                                  -->
+  <!-- ================================ -->
+  <target name="init">
+    <echoproperties />
+  	<delete dir="${bin.dir}"/>
+  	<delete dir="${temp.dist.dir}"/>
+  	<mkdir dir="${bin.dir}"/>
+  	<!-- Create a temporary distribution dir to avoid conflicts with SVN -->
+  	<mkdir dir="${temp.dist.dir}"/>
+  </target>
+  
+  <!-- ================================ -->
+  <!--                                  -->
+  <!--              COMPILE             -->
+  <!--                                  -->
+  <!-- ================================ -->
+  <target name="compile" depends="init">
+  	<!-- Set up the classpath -->
+  	
+  	<path id="cp">  		
+  	  <fileset dir=".">
+  	    <include name="*.jar"/>
+  	  </fileset>
+  	  <fileset dir="/usr/share/java">
+  	    <include name="*.jar"/>
+      </fileset>
+  	  <fileset dir="lib">
+  	    <include name="*.jar"/>
+  	  </fileset>
+  	</path>
+  	
+  	
+  	<javac classpathref="cp" verbose="true" target="1.5" debug="true" destdir="${bin.dir}">
+  	  <src path="${src.dir}" />
+  	</javac>
+  </target>
+
+  <!-- ================================ -->
+  <!--                                  -->
+  <!--              BUILD               -->
+  <!--                                  -->
+  <!-- ================================ -->
+  <target name="build" depends="compile">
+  	
+ 	<!-- create MANIFEST.MF -->
+  	<buildnumber file="build.number"/>
+  	<tstamp>
+  	  <format property="TODAY" pattern="yyyy-MM-dd HH:mm:ss:SSS" />
+  	</tstamp>
+  	<manifest file="${temp.dist.dir}/MANIFEST.MF">
+  	  <attribute name="Built-Date" value="${TODAY}"/>
+  	  <attribute name="Built-By" value="${user}"/>
+
+  	</manifest>
+  	
+	<!-- build war file -->
+	<war destfile="${temp.dist.dir}/tpta.war" webxml="${src.dir}/WEB-INF/web.xml" 
+				manifest="${temp.dist.dir}/MANIFEST.MF">
+    	<classes dir="${bin.dir}" 
+               includes="org/theeuropeanlibrary/telplus/tpta/web/*.class, 
+    						org/theeuropeanlibrary/telplus/tpta/*.class"/>
+		<webinf dir="${src.dir}/WEB-INF"/>
+		<lib dir="lib"/>
+  	</war>
+  	
+  </target>
+
+  <!-- ================================ -->
+  <!--                                  -->
+  <!--              DIST                -->
+  <!--                                  -->
+  <!-- ================================ -->
+  <target name="dist" depends="build">
+
+  	<!-- copy war files to dist dir -->
+  	<copy todir="${dist.dir}">
+  		<fileset dir="${temp.dist.dir}" excludes="MANIFEST.MF"/>
+  	</copy>
+  	
+  	
+    <!-- Clean up temp.dist.dir -->
+    <delete dir="${temp.dist.dir}" />
+  
+  </target>
+	
+  <!-- ================================ -->
+  <!--                                  -->
+  <!--          LOCAL_DEPLOY            -->
+  <!--                                  -->
+  <!-- ================================ -->
+  <target name="local_deploy" depends="dist">
+  	<!-- copy the used classifiers to the servlet's classpath-->
+  	<copy file="classifiers/ner-eng-ie.crf-4-conll.ser.gz" todir="${tomcat.root.dir}/conf/tpta"/>
+  	<copy file="classifiers/ner-ger-ie.crf-4-kb.ser.gz" todir="${tomcat.root.dir}/conf/tpta"/>
+  	<copy file="dutch.gz" todir="${tomcat.root.dir}/conf/tpta"/>
+  	<!-- copy war file to deploy-dir -->
+	<copy file="${dist.dir}/tpta.war" todir="/var/lib/tomcat6/webapps"/>
+  </target>
+</project>
